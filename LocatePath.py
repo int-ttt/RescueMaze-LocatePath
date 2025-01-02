@@ -1,5 +1,6 @@
 from collections import namedtuple
 from itertools import dropwhile
+from queue import PriorityQueue
 
 azimuth = namedtuple('azimuth', ['n', 's', 'w', 'e'])
 direction = namedtuple('direction', ['x', 'y'])
@@ -21,7 +22,7 @@ class Node:
 
 class NNode(Node):
     def __init__(self):
-        Node.__init__(self, 0, 0, [0, 0], 0)
+        Node.__init__(self, 0, 0, [0, 0], -1)
 
 
 azimuthList = [
@@ -52,7 +53,7 @@ azimuthList = [
 dg = [
    [ 13,  1,  9,  7,  9],
    [  5,  2,  8,  5,  8],
-   [ 12,  7,  2,  8, 14],
+   [  5,  11,  2,  8, 14],
    [  6,  3, 11,  6, 11]
 ]
 """ dg=___.___.___.___.___.
@@ -60,8 +61,8 @@ dg = [
       | . | . . . |___. . |
       |   .   .   |   .   |
       | . .___. . | . . . |
-      |   |   .   .   |   |
-      | . |___.___. . |___|
+      |   .   |   .   |   |
+      | . .___|___. . |___|
       |   .   .   |   .   |
       |___.___.___|___.___|
 """
@@ -89,10 +90,12 @@ azi = [
     direction(0, -1)
 ]
 
-for i in range(12):
+for i in range(19):
+    tOpenList = []
+    tClosedList = []
+
     chd = 1
     dx, dy = 0, 0
-    ddx, ddy = 0, 0
     tx, ty = 0, 0
     n, s, w, e = azimuthList[nextNode.wall]
 
@@ -107,34 +110,39 @@ for i in range(12):
 
     print(openList, closedList)
     dir = openList[0]
-    if chd:
+    tOpenList = openList+ []
+    for dir in tOpenList:
+        i = 0
         for e in closedList:
             if e.x == nextNode.x + dir.x and e.y == nextNode.y + dir.y:
-
+                i += 1
                 openList.remove(dir)
-                dir = openList[0]
-                chd = 1
-            else:
-                chd = 0
+        if nextNode.x + dir.x > len(grid[0]) or nextNode.y + dir.y > len(grid):
+            openList.remove(dir)
+        if i == 0:
+            break
     openList.remove(dir)
-    nextNode = Node(nextNode.x + dir.x, nextNode.y + dir.y, [nextNode.xx + dir.x, nextNode.yy + dir.y], dg[nextNode.yy + dir.y][nextNode.xx + dir.x])
     print(dir)
-    if (dir.x == -1 or dir.x == 1) and (len(grid[0]) < nextNode.x + dir.x or nextNode.x + dir.x + 1 < 0):
+    nextNode = Node(nextNode.x + dir.x, nextNode.y + dir.y, [nextNode.xx + dir.x, nextNode.yy + dir.y], dg[nextNode.yy + dir.y][nextNode.xx + dir.x])
+
+    if (dir.x < 0 or dir.x > 0) and (len(grid[0]) < nextNode.x + dir.x or nextNode.x + dir.x + 1 < 0):
         tGrid = [NNode() for i in range(len(grid[0]) + 1)]
         if dir.x == -1:
             dx = 1
-        ddx = 1
-        tx = 1 if dir.x == -1 else -1
+        tx = -dir.x
     else:
+        if dir.x < 0 or dir.x > 0:
+            tx = -dir.x
         tGrid = [NNode() for i in range(len(grid[0]))]
 
-    if (dir.y == -1 or dir.y == 1) and (len(grid) < nextNode.y + dir.y or nextNode.y + dir.y + 1 < 0):
+    if (dir.y < 0 or dir.y > 0) and (len(grid) < nextNode.y + dir.y or nextNode.y + dir.y + 1 < 0):
         tGrid = [(tGrid + []) for i in range(len(grid) + 1)]
         if dir.y == -1:
             dy = 1
-        ddy = 1
-        ty = 1 if dir.y == -1 else -1
+        ty = -dir.y
     else:
+        if dir.y < 0 or dir.y > 0:
+            ty = -dir.y
         tGrid = [(tGrid + []) for i in range(len(grid))]
     closedList.append(direction(nextNode.x, nextNode.y))
 
@@ -142,7 +150,7 @@ for i in range(12):
         for x in range(len(grid[0])):
             node = grid[y][x]
             tGrid[y+dy][x+dx] = node
-    print(nextNode.y+dy, nextNode)
+
     tGrid[nextNode.y+dy][nextNode.x+dx] = nextNode
     for y in range(len(tGrid)):
         for x in range(len(tGrid[0])):
@@ -152,7 +160,7 @@ for i in range(12):
     grid = tGrid + []
     tOpenList = []
     tClosedList = []
-    print(openList, tx, ty)
+
     for e in openList:
         tOpenList.append(direction(e[0] + tx, e[1] + ty))
     for e in closedList:
@@ -161,4 +169,3 @@ for i in range(12):
     closedList = tClosedList
     for e in tGrid:
         print(e)
-
