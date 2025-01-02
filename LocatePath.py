@@ -5,7 +5,7 @@ azimuth = namedtuple('azimuth', ['n', 's', 'w', 'e'])
 direction = namedtuple('direction', ['x', 'y'])
 
 class Node:
-    def __init__(self, x, y, originPos, wall):
+    def __init__(self, x : int, y: int, originPos, wall):
         self.x = x
         self.y = y
         self.xx = originPos[0]
@@ -50,14 +50,14 @@ azimuthList = [
 """
 
 dg = [
-   [  7,  1,  9,  7,  9],
+   [ 13,  1,  9,  7,  9],
    [  5,  2,  8,  5,  8],
    [ 12,  7,  2,  8, 14],
    [  6,  3, 11,  6, 11]
 ]
 """ dg=___.___.___.___.___.
-      |   .   .   |   .   |
-      |___. . . . |___. . |
+      |   |   .   |   .   |
+      | . | . . . |___. . |
       |   .   .   |   .   |
       | . .___. . | . . . |
       |   |   .   .   |   |
@@ -66,71 +66,83 @@ dg = [
       |___.___.___|___.___|
 """
 
-openList = []
-closedList = []
-startPos = [4, 1]
+
+startPos = [0, 0]
 
 grid = [[Node(0, 0, startPos, dg[startPos[1]][startPos[0]])]]
 tGrid = [[NNode()]]
 nextNode = grid[0][0]
-
+openList = []
+closedList = [direction(0,0)]
 #### last node  list
 #### north 0 south 1 west 2 east 3
 lastPos = 1
 
 print(grid)
 
+dir = []
 
-lastPos = 0
+azi = [
+    direction(1, 0),
+    direction(-1, 0),
+    direction(0, 1),
+    direction(0, -1)
+]
 
-for i in range(3):
-
+for i in range(12):
+    chd = 1
     dx, dy = 0, 0
+    ddx, ddy = 0, 0
+    tx, ty = 0, 0
     n, s, w, e = azimuthList[nextNode.wall]
 
-    print(lastPos, (n and lastPos != 1), (s and lastPos != 0))
+    if e and dir != azi[1]:
+        openList.insert(0, azi[0])
+    if w and dir != azi[0]:
+        openList.insert(0, azi[1])
+    if s and dir != azi[3]:
+        openList.insert(0, azi[2])
+    if n and dir != azi[2]:
+        openList.insert(0, azi[3])
 
-    if e and lastPos != 2:
-        openList.append(direction(1, 0))
-        lastPos = 3
-    if w and lastPos != 3:
-        openList.append(direction(-1, 0))
-        lastPos = 2
-    if lastPos != 0 and s:
-        openList.append(direction(0, 1))
-        lastPos = 1
-    if n and lastPos != 1:
-        openList.append(direction(0, -1))
-        lastPos = 0
+    print(openList, closedList)
+    dir = openList[0]
+    if chd:
+        for e in closedList:
+            if e.x == nextNode.x + dir.x and e.y == nextNode.y + dir.y:
 
-    print(n, s, w, e, openList, closedList)
-
-    dir = openList[-1]
-    if dir in closedList:
-        openList.remove(dir)
-        dir = openList[-1]
+                openList.remove(dir)
+                dir = openList[0]
+                chd = 1
+            else:
+                chd = 0
     openList.remove(dir)
-    closedList.append(dir)
     nextNode = Node(nextNode.x + dir.x, nextNode.y + dir.y, [nextNode.xx + dir.x, nextNode.yy + dir.y], dg[nextNode.yy + dir.y][nextNode.xx + dir.x])
-
-    print(dir.x, len(grid[0]), nextNode.x + dir[0], nextNode.x + dir[0] < 0, dir[0] == -1 or dir[1] == 0)
-    if (dir.x == -1 or dir.x == 1) and (len(grid[0]) < nextNode.x + dir.x + 1 or nextNode.x + dir.x < 0):
+    print(dir)
+    if (dir.x == -1 or dir.x == 1) and (len(grid[0]) < nextNode.x + dir.x or nextNode.x + dir.x + 1 < 0):
         tGrid = [NNode() for i in range(len(grid[0]) + 1)]
-        dx = 1
+        if dir.x == -1:
+            dx = 1
+        ddx = 1
+        tx = 1 if dir.x == -1 else -1
     else:
         tGrid = [NNode() for i in range(len(grid[0]))]
 
-    if (dir.y == -1 or dir.y == 1) and (len(grid) <nextNode.y + dir.y + 1 or nextNode.y + dir.y < 0):
+    if (dir.y == -1 or dir.y == 1) and (len(grid) < nextNode.y + dir.y or nextNode.y + dir.y + 1 < 0):
         tGrid = [(tGrid + []) for i in range(len(grid) + 1)]
-        dy = 1
+        if dir.y == -1:
+            dy = 1
+        ddy = 1
+        ty = 1 if dir.y == -1 else -1
     else:
         tGrid = [(tGrid + []) for i in range(len(grid))]
+    closedList.append(direction(nextNode.x, nextNode.y))
 
     for y in range(len(grid)):
         for x in range(len(grid[0])):
             node = grid[y][x]
             tGrid[y+dy][x+dx] = node
-
+    print(nextNode.y+dy, nextNode)
     tGrid[nextNode.y+dy][nextNode.x+dx] = nextNode
     for y in range(len(tGrid)):
         for x in range(len(tGrid[0])):
@@ -140,11 +152,13 @@ for i in range(3):
     grid = tGrid + []
     tOpenList = []
     tClosedList = []
+    print(openList, tx, ty)
     for e in openList:
-        tOpenList.append(direction(e.x + dx * 2, e.y + dy * 2))
+        tOpenList.append(direction(e[0] + tx, e[1] + ty))
     for e in closedList:
-        tClosedList.append(direction(e.x + dx * 2, e.y + dy * 2))
+        tClosedList.append(direction(e[0] + dx, e[1] + dy))
     openList = tOpenList
     closedList = tClosedList
-    print(tGrid)
+    for e in tGrid:
+        print(e)
 
