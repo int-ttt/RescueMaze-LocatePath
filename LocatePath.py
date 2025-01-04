@@ -1,6 +1,4 @@
 from collections import namedtuple
-from itertools import dropwhile
-from queue import PriorityQueue
 
 azimuth = namedtuple('azimuth', ['n', 's', 'w', 'e'])
 direction = namedtuple('direction', ['x', 'y'])
@@ -68,7 +66,7 @@ dg = [
 """
 
 
-startPos = [0, 0]
+startPos = [1, 2]
 
 grid = [[Node(0, 0, startPos, dg[startPos[1]][startPos[0]])]]
 tGrid = [[NNode()]]
@@ -90,7 +88,7 @@ azi = [
     direction(0, -1)
 ]
 
-for i in range(19):
+while True:
     tOpenList = []
     tClosedList = []
 
@@ -121,8 +119,12 @@ for i in range(19):
             openList.remove(dir)
         if i == 0:
             break
+    if len(openList) == 0:
+        break
     openList.remove(dir)
     print(dir)
+
+
     nextNode = Node(nextNode.x + dir.x, nextNode.y + dir.y, [nextNode.xx + dir.x, nextNode.yy + dir.y], dg[nextNode.yy + dir.y][nextNode.xx + dir.x])
 
     if (dir.x < 0 or dir.x > 0) and (len(grid[0]) < nextNode.x + dir.x or nextNode.x + dir.x + 1 < 0):
@@ -169,3 +171,5 @@ for i in range(19):
     closedList = tClosedList
     for e in tGrid:
         print(e)
+for e in tGrid:
+    print(e)
