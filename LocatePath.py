@@ -3,8 +3,9 @@ from collections import namedtuple
 azimuth = namedtuple('azimuth', ['n', 's', 'w', 'e'])
 direction = namedtuple('direction', ['x', 'y'])
 
+
 class Node:
-    def __init__(self, x : int, y: int, originPos, wall):
+    def __init__(self, x: int, y: int, originPos, wall):
         self.x = x
         self.y = y
         self.xx = originPos[0]
@@ -18,16 +19,17 @@ class Node:
         self.x = x
         self.y = y
 
+
 class NNode(Node):
     def __init__(self):
         Node.__init__(self, 0, 0, [0, 0], -1)
 
 
 azimuthList = [
-    azimuth(1,1,1,1),azimuth(0,1,1,1),azimuth(1,0,1,1),azimuth(0,0,1,1),
-    azimuth(1,1,0,1),azimuth(0,1,0,1),azimuth(1,0,0,1),azimuth(0,0,0,1),
-    azimuth(1,1,1,0),azimuth(0,1,1,0),azimuth(1,0,1,0),azimuth(0,0,1,0),
-    azimuth(1,1,0,0),azimuth(0,1,0,0),azimuth(1,0,0,0),azimuth(0,0,0,0)
+    azimuth(1, 1, 1, 1), azimuth(0, 1, 1, 1), azimuth(1, 0, 1, 1), azimuth(0, 0, 1, 1),
+    azimuth(1, 1, 0, 1), azimuth(0, 1, 0, 1), azimuth(1, 0, 0, 1), azimuth(0, 0, 0, 1),
+    azimuth(1, 1, 1, 0), azimuth(0, 1, 1, 0), azimuth(1, 0, 1, 0), azimuth(0, 0, 1, 0),
+    azimuth(1, 1, 0, 0), azimuth(0, 1, 0, 0), azimuth(1, 0, 0, 0), azimuth(0, 0, 0, 0)
 ]
 
 """             ___             ___
@@ -49,10 +51,10 @@ azimuthList = [
 """
 
 dg = [
-   [ 13,  1,  9,  7,  9],
-   [  5,  2,  8,  5,  8],
-   [  5,  11,  2,  8, 14],
-   [  6,  3, 11,  6, 11]
+    [13, 1, 9, 7, 9],
+    [4, 2, 8, 5, 8],
+    [4, 11, 2, 8, 14],
+    [6, 3, 11, 6, 11]
 ]
 """ dg=___.___.___.___.___.
       |   |   .   |   .   |
@@ -65,21 +67,25 @@ dg = [
       |___.___.___|___.___|
 """
 
-
-startPos = [1, 2]
+startPos = [0,0 ]
 
 grid = [[Node(0, 0, startPos, dg[startPos[1]][startPos[0]])]]
 tGrid = [[NNode()]]
 nextNode = grid[0][0]
 openList = []
-closedList = [direction(0,0)]
-#### last node  list
-#### north 0 south 1 west 2 east 3
+closedList = [direction(0, 0)]
+
+# last node  list
+
+# north 0 south 1 west 2 east 3
+
 lastPos = 1
 
 print(grid)
 
 dir = []
+
+
 
 azi = [
     direction(1, 0),
@@ -97,18 +103,18 @@ while True:
     tx, ty = 0, 0
     n, s, w, e = azimuthList[nextNode.wall]
 
-    if e and dir != azi[1]:
+    if e:
         openList.insert(0, azi[0])
-    if w and dir != azi[0]:
+    if w:
         openList.insert(0, azi[1])
-    if s and dir != azi[3]:
+    if s:
         openList.insert(0, azi[2])
-    if n and dir != azi[2]:
+    if n:
         openList.insert(0, azi[3])
 
     print(openList, closedList)
     dir = openList[0]
-    tOpenList = openList+ []
+    tOpenList = openList + []
     for dir in tOpenList:
         i = 0
         for e in closedList:
@@ -124,8 +130,8 @@ while True:
     openList.remove(dir)
     print(dir)
 
-
-    nextNode = Node(nextNode.x + dir.x, nextNode.y + dir.y, [nextNode.xx + dir.x, nextNode.yy + dir.y], dg[nextNode.yy + dir.y][nextNode.xx + dir.x])
+    nextNode = Node(nextNode.x + dir.x, nextNode.y + dir.y, [nextNode.xx + dir.x, nextNode.yy + dir.y],
+                    dg[nextNode.yy + dir.y][nextNode.xx + dir.x])
 
     if (dir.x < 0 or dir.x > 0) and (len(grid[0]) < nextNode.x + dir.x or nextNode.x + dir.x + 1 < 0):
         tGrid = [NNode() for i in range(len(grid[0]) + 1)]
@@ -151,9 +157,9 @@ while True:
     for y in range(len(grid)):
         for x in range(len(grid[0])):
             node = grid[y][x]
-            tGrid[y+dy][x+dx] = node
+            tGrid[y + dy][x + dx] = node
 
-    tGrid[nextNode.y+dy][nextNode.x+dx] = nextNode
+    tGrid[nextNode.y + dy][nextNode.x + dx] = nextNode
     for y in range(len(tGrid)):
         for x in range(len(tGrid[0])):
             node = tGrid[y][x]
@@ -171,5 +177,6 @@ while True:
     closedList = tClosedList
     for e in tGrid:
         print(e)
+print()
 for e in tGrid:
     print(e)
