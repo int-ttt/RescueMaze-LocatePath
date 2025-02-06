@@ -65,5 +65,5 @@ dg = [
       |___.___.___|___.___|
 """
 startPos = (0, 0)
-targetPos = (0, 3)
+targetPos = (3, 0)
 print(getDirections(dg, startPos, targetPos))
